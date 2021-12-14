@@ -1,20 +1,4 @@
-<!--<template>-->
-<!--    <div ref="draggable_div_ref" :style="{-->
-<!--        border: '1px solid red',-->
-<!--        position: floating? 'absolute': 'relative',-->
-<!--        left: scrX,-->
-<!--        top: scrY-->
-<!--  }">-->
-<!--        <div class="title_embedded" v-on:mousedown.stop.prevent="onTitleMouseDown">{{title}}</div>-->
-<!--        <br>-->
-<!--        <div class="content_container">-->
-<!--            <slot></slot>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</template>-->
-
 <script>
-    import {Vector2D} from "@/math/Vector2D"
     import {h} from "vue"
     import DraggableItem from "./DraggableItem.vue"
     import DraggableTitle from "./DraggableTitle";
@@ -29,13 +13,6 @@
         },
         data() {
             return {
-                beginToMove: false,
-                isMoving: false,
-                startMovingPos: new Vector2D(0.0, 0.0),
-                floating: false,
-                scrX: 0,
-                scrY: 0,
-
                 slotMapInited: false,
                 // id -> slot map
                 idSlotMap: new Map(),
@@ -60,40 +37,6 @@
                     }
                 );
             },
-            onTitleMouseDown(evt) {
-                this.beginToMove = true;
-                this.startMovingPos.X = evt.clientX;
-                this.startMovingPos.Y = evt.clientY;
-
-                document.onmousemove = this.onMouseMove;
-                document.onmouseup = this.onMouseUp;
-            },
-            onMouseUp() {
-                this.beginToMove = false;
-                this.isMoving = false;
-
-                console.log("OnTitleMouseUp")
-                document.onmousemove = null;
-                document.onmouseup = null;
-            },
-            onMouseMove(evt) {
-                if (this.beginToMove && !this.startMovingPos.equals(evt.clientX, evt.clientY)) {
-                    this.isMoving = true;
-                }
-
-                if (this.isMoving) {
-                    let offsetX = this.startMovingPos.X - evt.clientX;
-                    let offsetY = this.startMovingPos.Y - evt.clientY;
-
-                    this.startMovingPos.X = evt.clientX;
-                    this.startMovingPos.Y = evt.clientY;
-
-                    let ele = this.$refs.draggable_div_ref;
-
-                    this.scrX = (ele.offsetLeft - offsetX) + "px";
-                    this.scrY = (ele.offsetTop - offsetY) + "px";
-                }
-            },
             titleEvent(targetId){
                 this.idSlotMap.forEach(
                     value => {
@@ -108,19 +51,6 @@
                         }
                     }
                 )
-            }
-        },
-        watch: {
-            isMoving: function (val) {
-                if (val) { // isMoving
-                    this.floating = true;
-
-                    console.log("Floating div")
-                } else { // dropped and not moving
-                    this.floating = false;
-
-                    console.log("Embedded div")
-                }
             }
         },
         render: function () {
