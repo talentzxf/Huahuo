@@ -2,6 +2,7 @@
     import {h} from "vue"
     import DraggableItem from "./DraggableItem.vue"
     import DraggableTitle from "./DraggableTitle";
+    import TitleBarHolder from "./TitleBarHolder";
     import {Utils} from "./Utils"
 
     export default {
@@ -82,13 +83,20 @@
                 }
             )
 
-            return h("div", [titleBarArray, contentArray]);
+            let titleBarDiv = h(TitleBarHolder, titleBarArray)
+
+            return h("div", {class:"draggle_panel"} ,[titleBarDiv, contentArray]);
         }
     }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+    .draggle_panel{
+      display: flex;
+      flex-direction: column;
+    }
 
     .content_container {
         border: 1px solid blue;

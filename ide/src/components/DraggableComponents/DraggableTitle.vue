@@ -26,7 +26,8 @@
           return {
             beginToMove: false,
             isMoving: false,
-            prevMousePos: new Vector2D(0.0, 0.0),
+            startMousePos: new Vector2D(0.0, 0.0),
+            startElePos: new Vector2D(0.0, 0.0),
             floating: false,
             scrX: 0,
             scrY: 0,
@@ -51,51 +52,44 @@
             },
             onTitleMouseDown(evt) {
               this.beginToMove = true;
-              this.prevMousePos.X = evt.clientX;
-              this.prevMousePos.Y = evt.clientY;
+              this.startMousePos.X = evt.clientX;
+              this.startMousePos.Y = evt.clientY;
+
+              let ele = this.$refs.draggable_div_ref;
+              this.startElePos.X = ele.offsetLeft
+              this.startElePos.Y = ele.offsetTop
 
               document.onmousemove = this.onMouseMove;
               document.onmouseup = this.onMouseUp;
           },
           onMouseMove(evt) {
-            if (this.beginToMove && !this.prevMousePos.equals(evt.clientX, evt.clientY)) {
+            if (this.beginToMove && !this.startMousePos.equals(evt.clientX, evt.clientY)) {
               this.isMoving = true;
             }
 
             if (this.isMoving) {
+              let offsetX = evt.clientX - this.startMousePos.X;
+              let offsetY = evt.clientY - this.startMousePos.Y;
 
-              console.log("Prev mouse X:" + this.prevMousePos.X)
-              console.log("Prev mouse X:" + this.prevMousePos.Y)
+              let targetX = this.startElePos.X + offsetX;
+              let targetY = this.startElePos.Y + offsetY;
 
-              console.log("Cur mouse X:" + evt.clientX)
-              console.log("Cur mouse Y:" + evt.clientY)
-
-              let offsetX = evt.clientX - this.prevMousePos.X;
-              let offsetY = evt.clientY - this.prevMousePos.Y;
-
-              console.log("offsetX:" + offsetX)
-              console.log("offsetY:" + offsetY)
-
-              this.prevMousePos.X = evt.clientX;
-              this.prevMousePos.Y = evt.clientY;
-
-              let ele = this.$refs.draggable_div_ref;
-
-              console.log("elemX" + ele.offsetLeft)
-              console.log("elemY:" + ele.offsetTop)
-
-              this.scrX = (ele.offsetLeft + offsetX) + "px";
-              this.scrY = (ele.offsetTop + offsetY) + "px";
-
-              console.log("new scrX" + this.scrX)
-              console.log("new scrY" + this.scrY)
+              // if the target position is still within the titlebar holder, just rearrange the tab order accordingly.
+              if(this.$parent.in(targetX, targetY)){
+                this.scrX = targetX + "px";
+                this.scrY = this.startElePos.Y + "px";
+              }else{
+                this.scrX = targetX + "px";
+                this.scrY = targetY + "px";
+              }
             }
           },
           onMouseUp() {
             this.beginToMove = false;
             this.isMoving = false;
+            this.scrX = 0;
+            this.scrY = 0;
 
-            console.log("OnTitleMouseUp")
             document.onmousemove = null;
             document.onmouseup = null;
           },
