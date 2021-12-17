@@ -17,6 +17,8 @@ class TabMover{
     private handlerChain: ResponsibleChain<TabMoveParam> = new ResponsibleChain<TabMoveParam>();
 
     private constructor() {
+        // Default behaviour, drag out of all the title bar holders.
+        this.AddBack(this.DefaultTitleMoving)
     }
 
     public static getInstance(): TabMover{
@@ -24,6 +26,11 @@ class TabMover{
             TabMover.instance = new TabMover()
 
         return TabMover.instance
+    }
+
+    public DefaultTitleMoving(param: any):boolean{
+        param.ele.SetScrPos(param.targetPos.X, param.targetPos.Y)
+        return true
     }
 
     public TryMove(obj: any, inTargetPos: Vector2D){

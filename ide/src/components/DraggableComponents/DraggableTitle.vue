@@ -48,6 +48,12 @@
           }
         },
         methods:{
+            getWidth(){
+              return this.$refs.draggable_div_ref.clientWidth
+            },
+            getHeight(){
+              return this.$refs.draggable_div_ref.clientHeight
+            },
             tabSelected(){
                 this.$emit('tabSelected', this.itemId)
             },

@@ -18,30 +18,21 @@
         let ele = param.ele
         let targetPos = param.targetPos
 
-        console.log("Got title moving event")
-
-        console.log(ele)
-        console.log(targetPos)
-
-        if(this.in(targetPos.X, targetPos.Y)){
+        if(this.overlap(targetPos.X, targetPos.Y, ele.getWidth(), ele.getHeight())){
 
           let holderY = this.$refs.holder.offsetTop
           ele.SetScrPos(targetPos.X, holderY)
-
-          // // if the target position is still within the titlebar holder, just rearrange the tab order accordingly.
-          // if(this.$parent.in(targetX, targetY)){
-          //   this.scrX = targetX + "px";
-          //   this.scrY = this.startElePos.Y + "px";
-          // }else{
-          //   this.scrX = targetX + "px";
-          //   this.scrY = targetY + "px";
-          // }
-
           return true;
         }
 
         return false;
 
+      },
+      overlap(x, y, width, height){
+        if( this.in(x,y) || this.in(x+width, y+height))
+          return true;
+        
+        return false;
       },
       in(x, y){
         let ele = this.$refs.holder;
