@@ -3,6 +3,8 @@ class Utils{
 
     static curItemId: number = 1;
 
+    static Event:any = require('tiny-emitter/instance');
+
     static GenerateItemId(): number{
         return Utils.curItemId++;
     }

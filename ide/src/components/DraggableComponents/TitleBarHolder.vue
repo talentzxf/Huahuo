@@ -4,11 +4,20 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
+  import {Events} from "./Events"
+  import {Utils} from "./Utils"
+
   export default {
     name: "TitleBarHolder",
+    mounted() {
+      Utils.Event.on(Events.TitleMoving, this.methods.onTitleMoving)
+    },
     methods:{
-      in(x: number, y:number): boolean{
+      onTitleMoving(){
+        console.log("Got title moving event")
+      },
+      in(x, y){
         let ele = this.$refs.holder;
 
         let eleRect = ele.getBoundingClientRect()

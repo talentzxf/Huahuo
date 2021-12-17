@@ -14,6 +14,7 @@
 
 <script>
     import {Vector2D} from "@/math/Vector2D"
+    import {TabMover} from "./TabMover";
 
     export default {
         name: "DraggableTitle",
@@ -74,14 +75,16 @@
               let targetX = this.startElePos.X + offsetX;
               let targetY = this.startElePos.Y + offsetY;
 
-              // if the target position is still within the titlebar holder, just rearrange the tab order accordingly.
-              if(this.$parent.in(targetX, targetY)){
-                this.scrX = targetX + "px";
-                this.scrY = this.startElePos.Y + "px";
-              }else{
-                this.scrX = targetX + "px";
-                this.scrY = targetY + "px";
-              }
+              TabMover.instance.TryMove(this, targetX, targetY)
+
+              // // if the target position is still within the titlebar holder, just rearrange the tab order accordingly.
+              // if(this.$parent.in(targetX, targetY)){
+              //   this.scrX = targetX + "px";
+              //   this.scrY = this.startElePos.Y + "px";
+              // }else{
+              //   this.scrX = targetX + "px";
+              //   this.scrY = targetY + "px";
+              // }
             }
           },
           onMouseUp() {
