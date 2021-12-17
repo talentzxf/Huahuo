@@ -1,5 +1,5 @@
 import {Vector2D} from "@/math/Vector2D";
-import {ResponsibleChain} from "./ResponsibleChain";
+import {ResponsibleChain, ChainCallback} from "./ResponsibleChain";
 
 class TabMoveParam {
     private ele: any
@@ -14,7 +14,7 @@ class TabMoveParam {
 class TabMover{
     private static instance: TabMover;
 
-    private handlerChain: ResponsibleChain<TabMoveParam>| null = null;
+    private handlerChain: ResponsibleChain<TabMoveParam> = new ResponsibleChain<TabMoveParam>();
 
     private constructor() {
     }
@@ -27,7 +27,15 @@ class TabMover{
     }
 
     public TryMove(obj: any, inTargetPos: Vector2D){
-        this.handlerChain?.execute(new TabMoveParam(obj,inTargetPos))
+        this.handlerChain.execute(new TabMoveParam(obj,inTargetPos))
+    }
+
+    public AddBack(lastCallBack: ChainCallback<TabMoveParam>):void {
+        this.handlerChain.AddBack(lastCallBack)
+    }
+
+    public AddFront(frontCallBack: ChainCallback<TabMoveParam>):void{
+        this.handlerChain.AddFront(frontCallBack)
     }
 }
 

@@ -51,6 +51,10 @@
             tabSelected(){
                 this.$emit('tabSelected', this.itemId)
             },
+            SetScrPos(X, Y){
+              this.scrX = X + "px";
+              this.scrY = Y + "px";
+            },
             onTitleMouseDown(evt) {
               this.beginToMove = true;
               this.startMousePos.X = evt.clientX;
@@ -75,16 +79,7 @@
               let targetX = this.startElePos.X + offsetX;
               let targetY = this.startElePos.Y + offsetY;
 
-              TabMover.instance.TryMove(this, targetX, targetY)
-
-              // // if the target position is still within the titlebar holder, just rearrange the tab order accordingly.
-              // if(this.$parent.in(targetX, targetY)){
-              //   this.scrX = targetX + "px";
-              //   this.scrY = this.startElePos.Y + "px";
-              // }else{
-              //   this.scrX = targetX + "px";
-              //   this.scrY = targetY + "px";
-              // }
+              TabMover.getInstance().TryMove(this, new Vector2D(targetX, targetY))
             }
           },
           onMouseUp() {

@@ -5,17 +5,43 @@
 </template>
 
 <script>
-  import {Events} from "./Events"
-  import {Utils} from "./Utils"
+  import {TabMover} from "./TabMover";
 
   export default {
     name: "TitleBarHolder",
     mounted() {
-      Utils.Event.on(Events.TitleMoving, this.methods.onTitleMoving)
+      // Register call back for the title moving
+      TabMover.getInstance().AddFront(this.onTitleMoving)
     },
     methods:{
-      onTitleMoving(){
+      onTitleMoving(param){
+        let ele = param.ele
+        let targetPos = param.targetPos
+
         console.log("Got title moving event")
+
+        console.log(ele)
+        console.log(targetPos)
+
+        if(this.in(targetPos.X, targetPos.Y)){
+
+          let holderY = this.$refs.holder.offsetTop
+          ele.SetScrPos(targetPos.X, holderY)
+
+          // // if the target position is still within the titlebar holder, just rearrange the tab order accordingly.
+          // if(this.$parent.in(targetX, targetY)){
+          //   this.scrX = targetX + "px";
+          //   this.scrY = this.startElePos.Y + "px";
+          // }else{
+          //   this.scrX = targetX + "px";
+          //   this.scrY = targetY + "px";
+          // }
+
+          return true;
+        }
+
+        return false;
+
       },
       in(x, y){
         let ele = this.$refs.holder;

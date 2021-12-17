@@ -1,5 +1,3 @@
-import {Vector2D} from "@/math/Vector2D";
-
 interface ChainCallback<T> {
     (param:T):boolean;
 }
@@ -74,4 +72,4 @@ class ResponsibleChain<T>{
     }
 }
 
-export {ResponsibleChain}
+export {ResponsibleChain, ChainCallback}
