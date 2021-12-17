@@ -6,6 +6,7 @@
 
 <script>
   import {TabMover} from "./TabMover";
+  import {Rect2D} from "@/math/Rect2D";
 
   export default {
     name: "TitleBarHolder",
@@ -18,10 +19,26 @@
         let ele = param.ele
         let targetPos = param.targetPos
 
-        if(this.overlap(targetPos.X, targetPos.Y, ele.getWidth(), ele.getHeight())){
+        if(this.overlap(targetPos.X, targetPos.Y, ele.width, ele.height)){
 
           let holderY = this.$refs.holder.offsetTop
           ele.SetScrPos(targetPos.X, holderY)
+
+          let targetRect = new Rect2D(targetPos.X, targetPos.Y, targetPos.X +ele.width, targetPos.Y + ele.height)
+          // Move current titles if needed
+          this.$slots.default().forEach( titleBar => {
+            let titleBarComponent = titleBar.component.proxy // UGLY but really don't know how to access computed property in slot items
+            let x = titleBarComponent.x
+            let y = titleBarComponent.y
+            let width = titleBarComponent.width
+            let height = titleBarComponent.height
+
+            let childTitleRect = new Rect2D(x, y, x+width, y+height)
+
+            if(childTitleRect.overlap(targetRect)){
+              console.log("Overlap !!!!")
+            }
+          })
           return true;
         }
 
@@ -29,26 +46,11 @@
 
       },
       overlap(x, y, width, height){
-        if( this.in(x,y) || this.in(x+width, y+height))
-          return true;
-        
-        return false;
-      },
-      in(x, y){
-        let ele = this.$refs.holder;
+        let ele = this.$refs.holder
+        let eleRect = Rect2D.fromDomRect(ele.getBoundingClientRect())
 
-        let eleRect = ele.getBoundingClientRect()
-        let top = eleRect.top
-        let bottom = eleRect.bottom
-        if(y < top || y > bottom)
-          return false
-
-        let left = eleRect.left
-        let right = eleRect.right
-        if( x < left || x > right)
-          return false
-
-        return true
+        let targetRect = new Rect2D(x, y, x + width, y + height)
+        return eleRect.overlap(targetRect);
       }
     }
   }

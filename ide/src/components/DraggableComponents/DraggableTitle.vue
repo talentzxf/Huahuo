@@ -38,22 +38,12 @@
           isMoving: function (val) {
             if (val) { // isMoving
               this.floating = true;
-
-              console.log("Floating div")
             } else { // dropped and not moving
               this.floating = false;
-
-              console.log("Embedded div")
             }
           }
         },
         methods:{
-            getWidth(){
-              return this.$refs.draggable_div_ref.clientWidth
-            },
-            getHeight(){
-              return this.$refs.draggable_div_ref.clientHeight
-            },
             tabSelected(){
                 this.$emit('tabSelected', this.itemId)
             },
@@ -97,7 +87,21 @@
             document.onmousemove = null;
             document.onmouseup = null;
           },
-        }
+        },
+        computed: {
+          x: function() {
+            return this.$refs.draggable_div_ref.offsetLeft
+          },
+          y: function(){
+            return this.$refs.draggable_div_ref.offsetTop
+          },
+          width: function(){
+            return this.$refs.draggable_div_ref.clientWidth
+          },
+          height: function(){
+            return this.$refs.draggable_div_ref.clientHeight
+          }
+      }
     }
 </script>
 

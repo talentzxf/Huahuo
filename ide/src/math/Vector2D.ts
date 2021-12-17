@@ -1,10 +1,10 @@
 class Vector2D{
-    public X:Number
-    public Y:Number
+    public X:number
+    public Y:number
 
-    public constructor(X:number,Y:number) {
-        this.X = X
-        this.Y = Y;
+    public constructor(X?:number,Y?:number) {
+        this.X = X || 0
+        this.Y = Y || 0
     }
 
     equals(otherX: number, otherY: number){
