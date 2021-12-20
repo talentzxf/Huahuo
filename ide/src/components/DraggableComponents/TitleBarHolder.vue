@@ -7,16 +7,41 @@
 <script>
 import {TabMover} from "./TabMover";
 import {Rect2D} from "@/math/Rect2D";
+import {Utils} from "./Utils";
+import {Events} from "./Events";
 
 let occupiedTitle = null
+let occupiedTitleBarHolder = null
 
 export default {
   name: "TitleBarHolder",
   mounted() {
     // Register call back for the title moving
     TabMover.getInstance().AddFront(this.onTitleMoving)
+
+    Utils.Event.on(Events.TitleDropped, this.onTitleDrop)
   },
   methods: {
+    onTitleDrop(param){
+      let titleComponent = param.component
+      console.log("TitleComponent dropped:" + titleComponent.$refs.draggable_div_ref.innerText)
+
+      // This is the target title bar holder
+      if(this == occupiedTitleBarHolder){
+        console.log("Target is me!")
+
+        if(this == occupiedTitle.$parent){
+          this.$slots.default()
+          console.log("Same line, rearrange order")
+        }
+      }
+
+      if(occupiedTitle != null){
+        occupiedTitle.SetMarginLeft(0)
+        occupiedTitle = null
+        occupiedTitleBarHolder = null
+      }
+    },
     onTitleMoving(param) {
       let ele = param.ele
       let targetPos = param.targetPos
@@ -45,16 +70,20 @@ export default {
 
               if(occupiedTitle != null){
                 occupiedTitle.SetMarginLeft(0)
+                occupiedTitleBarHolder = null
               }
 
               occupiedTitle = titleBarComponent
               occupiedTitle.SetMarginLeft(ele.width)
+
+              occupiedTitleBarHolder = this
             }
           }
 
           if(!insideMe && occupiedTitle != null){
             occupiedTitle.SetMarginLeft(0)
             occupiedTitle = null
+            occupiedTitleBarHolder = null
           }
         })
 

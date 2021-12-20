@@ -17,6 +17,8 @@
 <script>
     import {Vector2D} from "@/math/Vector2D"
     import {TabMover} from "./TabMover";
+    import {Utils} from "./Utils";
+    import {Events} from "./Events";
 
     export default {
         name: "DraggableTitle",
@@ -96,7 +98,10 @@
             document.onmousemove = null;
             document.onmouseup = null;
             this.zIndex = 0
-          },
+
+            console.log("Emitting events.titledropped")
+            Utils.Event.emit(Events.TitleDropped, {component: this})
+          }
         },
         computed: {
           x: function() {

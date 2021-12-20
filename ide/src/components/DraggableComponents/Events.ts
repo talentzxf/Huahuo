@@ -1,5 +1,5 @@
 enum Events{
-    TitleMoving
+    TitleDropped
 }
 
 export {Events}

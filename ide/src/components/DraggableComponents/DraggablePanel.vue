@@ -12,9 +12,11 @@
             width: Number,
             height: Number,
         },
+        mounted(){
+          this.initIdMap()
+        },
         data() {
             return {
-                slotMapInited: false,
                 // id -> slot map
                 idSlotMap: new Map(),
                 curSelectedItem: -1
@@ -55,10 +57,6 @@
             }
         },
         render: function () {
-            if (!this.slotMapInited) {
-                this.initIdMap()
-                this.slotMapInited = true
-            }
             let titleBarArray = [];
 
             let contentArray = [];
