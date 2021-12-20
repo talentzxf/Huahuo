@@ -25,6 +25,12 @@ class Rect2D{
         if(this.in(otherRect.leftUp) || this.in(otherRect.rightDown)){
             return true
         }
+
+        if(otherRect.in(this.leftUp) || otherRect.in(this.rightDown))
+        {
+            return true
+        }
+
         return false
     }
 }
