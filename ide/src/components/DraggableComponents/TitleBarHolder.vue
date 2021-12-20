@@ -5,61 +5,85 @@
 </template>
 
 <script>
-  import {TabMover} from "./TabMover";
-  import {Rect2D} from "@/math/Rect2D";
+import {TabMover} from "./TabMover";
+import {Rect2D} from "@/math/Rect2D";
 
-  export default {
-    name: "TitleBarHolder",
-    mounted() {
-      // Register call back for the title moving
-      TabMover.getInstance().AddFront(this.onTitleMoving)
-    },
-    methods:{
-      onTitleMoving(param){
-        let ele = param.ele
-        let targetPos = param.targetPos
+let occupiedTitle = null
 
-        if(this.overlap(targetPos.X, targetPos.Y, ele.width, ele.height)){
+export default {
+  name: "TitleBarHolder",
+  mounted() {
+    // Register call back for the title moving
+    TabMover.getInstance().AddFront(this.onTitleMoving)
+  },
+  methods: {
+    onTitleMoving(param) {
+      let ele = param.ele
+      let targetPos = param.targetPos
 
-          let holderY = this.$refs.holder.offsetTop
-          ele.SetScrPos(targetPos.X, holderY)
+      if (this.overlap(targetPos.X, targetPos.Y, ele.width, ele.height)) {
 
-          let targetRect = new Rect2D(targetPos.X, targetPos.Y, targetPos.X +ele.width, targetPos.Y + ele.height)
-          // Move current titles if needed
-          this.$slots.default().forEach( titleBar => {
-            let titleBarComponent = titleBar.component.proxy // UGLY but really don't know how to access computed property in slot items
-            let x = titleBarComponent.x
-            let y = titleBarComponent.y
-            let width = titleBarComponent.width
-            let height = titleBarComponent.height
+        let holderY = this.$refs.holder.offsetTop
+        ele.SetScrPos(targetPos.X, holderY)
 
-            let childTitleRect = new Rect2D(x, y, x+width, y+height)
+        let targetRect = new Rect2D(targetPos.X, targetPos.Y, targetPos.X + ele.width, targetPos.Y + ele.height)
 
-            if(childTitleRect.overlap(targetRect)){
-              console.log("Overlap !!!!")
+        let insideMe = false
+        // Move current titles if needed
+        this.$slots.default().forEach(titleBar => {
+          let titleBarComponent = titleBar.component.proxy // UGLY but really don't know how to access computed property in slot items
+          let x = titleBarComponent.x
+          let y = titleBarComponent.y
+          let width = titleBarComponent.width
+          let height = titleBarComponent.height
+
+          let childTitleRect = new Rect2D(x,  y, x + width, y + height)
+
+          if(titleBarComponent.itemId != ele.itemId){
+            if (childTitleRect.overlap(targetRect)) {
+              insideMe = true
+
+              if(occupiedTitle != null){
+                occupiedTitle.SetMarginLeft(0)
+              }
+
+              occupiedTitle = titleBarComponent
+              occupiedTitle.SetMarginLeft(ele.width)
             }
-          })
-          return true;
-        }
+          }
 
-        return false;
+          if(!insideMe && occupiedTitle != null){
+            occupiedTitle.SetMarginLeft(0)
+            occupiedTitle = null
+          }
+        })
 
-      },
-      overlap(x, y, width, height){
-        let ele = this.$refs.holder
-        let eleRect = Rect2D.fromDomRect(ele.getBoundingClientRect())
-
-        let targetRect = new Rect2D(x, y, x + width, y + height)
-        return eleRect.overlap(targetRect);
+        return true;
       }
+
+      if(this.occupiedTitle != null){
+        this.occupiedTitle.SetMarginLeft(0)
+        this.occupiedTitle = null
+      }
+
+      return false;
+
+    },
+    overlap(x, y, width, height) {
+      let ele = this.$refs.holder
+      let eleRect = Rect2D.fromDomRect(ele.getBoundingClientRect())
+
+      let targetRect = new Rect2D(x, y, x + width, y + height)
+      return eleRect.overlap(targetRect);
     }
   }
+}
 </script>
 
 <style scoped>
-  .titlebar_holder{
-    border: 1px solid darkblue;
-    display: flex;
-    flex-direction: row;
-  }
+.titlebar_holder {
+  border: 1px solid darkblue;
+  display: flex;
+  flex-direction: row;
+}
 </style>

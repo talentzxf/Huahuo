@@ -19,6 +19,11 @@ class ResponsibleChainHandler<T>{
         return this.next
     }
 
+    /**
+     * Return true -- break the execution, didn't execute all remaining operations in the chain
+     * Return false -- continue the chain execution
+     * @param param
+     */
     public execute(param: T): boolean{
         if(this.callBack != null && this.callBack(param)){
             return true

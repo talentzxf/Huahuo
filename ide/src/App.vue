@@ -8,6 +8,11 @@
         This is view area!!!
       </div>
     </DraggableItem>
+    <DraggableItem title="PerspectiveWindow">
+      <div>
+        This is perspective window!!!
+      </div>
+    </DraggableItem>
   </DraggablePanel>
   <DraggablePanel>
     <DraggableItem title="Inspector">

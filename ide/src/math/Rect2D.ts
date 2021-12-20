@@ -33,6 +33,10 @@ class Rect2D{
 
         return false
     }
+
+    public toString(): string{
+        return "(" + this.leftUp.X + "," + this.leftUp.Y + ")->(" + this.rightDown.X + "," + this.rightDown.Y + ")"
+    }
 }
 
 export {Rect2D}

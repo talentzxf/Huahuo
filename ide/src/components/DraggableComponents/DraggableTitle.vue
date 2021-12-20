@@ -3,7 +3,9 @@
         border: selected?'5px solid gray': '1px solid blue',
         position: floating? 'absolute':'relative',
         left: scrX,
-        top: scrY
+        top: scrY,
+        marginLeft: marginLeft + 'px',
+        zIndex: zIndex
     }"
     @click="tabSelected"
     v-on:mousedown.stop.prevent="onTitleMouseDown"
@@ -32,6 +34,8 @@
             floating: false,
             scrX: 0,
             scrY: 0,
+            marginLeft: 0,
+            zIndex: 0
           }
         },
         watch: {
@@ -51,6 +55,9 @@
               this.scrX = X + "px";
               this.scrY = Y + "px";
             },
+            SetMarginLeft(marginLeft){
+              this.marginLeft = marginLeft
+            },
             onTitleMouseDown(evt) {
               this.beginToMove = true;
               this.startMousePos.X = evt.clientX;
@@ -62,6 +69,8 @@
 
               document.onmousemove = this.onMouseMove;
               document.onmouseup = this.onMouseUp;
+
+              this.zIndex = 9999
           },
           onMouseMove(evt) {
             if (this.beginToMove && !this.startMousePos.equals(evt.clientX, evt.clientY)) {
@@ -86,6 +95,7 @@
 
             document.onmousemove = null;
             document.onmouseup = null;
+            this.zIndex = 0
           },
         },
         computed: {
