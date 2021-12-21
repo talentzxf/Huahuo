@@ -26,19 +26,28 @@
             initIdMap() {
                 this.idSlotMap.clear();
 
+                let renderOrder = 0
                 this.$slots.default().forEach(
                     slot => {
                         if (slot.type == DraggableItem) {
                             let slotTitle = slot.props["title"]
                             let itemId = Utils.getSlotId(slot)
-                            this.idSlotMap.set(itemId, {title: slotTitle, itemId: itemId, content: slot})
+                            this.idSlotMap.set(itemId, {title: slotTitle, itemId: itemId, content: slot, renderOrder: renderOrder})
 
                             if (this.curSelectedItem < 0) {
                                 this.curSelectedItem = itemId;
                             }
+
+                            renderOrder++
                         }
                     }
                 );
+            },
+            getRenderOrder(itemId){
+              return this.idSlotMap.get(itemId).renderOrder
+            },
+            setRenderOrder(itemId, inRenderOrder){
+              this.idSlotMap.get(itemId).renderOrder = inRenderOrder
             },
             titleEvent(targetId){
                 this.idSlotMap.forEach(
@@ -61,8 +70,12 @@
 
             let contentArray = [];
 
-            this.idSlotMap.forEach(
-                (value) => {
+            let titleObjArray = Array.from(this.idSlotMap.values()).sort( (objA, objB)=>{
+              return objA.renderOrder - objB.renderOrder
+            })
+
+            titleObjArray.forEach(
+                value => {
                     let title = value.title
                     let itemId = value.itemId
                     let content = value.content

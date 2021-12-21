@@ -25,7 +25,7 @@
         props: {
             title: String,
             selected: Boolean,
-            itemId: Number
+            itemId: Number,
         },
         data: function (){
           return {
@@ -37,7 +37,7 @@
             scrX: 0,
             scrY: 0,
             marginLeft: 0,
-            zIndex: 0
+            zIndex: 0,
           }
         },
         watch: {

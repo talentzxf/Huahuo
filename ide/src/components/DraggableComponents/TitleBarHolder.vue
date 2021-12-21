@@ -22,27 +22,55 @@ export default {
     Utils.Event.on(Events.TitleDropped, this.onTitleDrop)
   },
   methods: {
-    onTitleDrop(param){
-      let titleComponent = param.component
-      console.log("TitleComponent dropped:" + titleComponent.$refs.draggable_div_ref.innerText)
+    onTitleDrop(param) {
+      try {
+        let panel = this.$parent
+        let titleComponent = param.component
+        let itemId = titleComponent.itemId
 
-      // This is the target title bar holder
-      if(this == occupiedTitleBarHolder){
-        console.log("Target is me!")
+        // This is the target title bar holder
+        if (this == occupiedTitleBarHolder) {
+          console.log("Target is me!")
+          if (this == titleComponent.$parent) {
+            let currentRenderOrder = panel.getRenderOrder(itemId)
+            console.log("TitleComponent dropped:" + titleComponent.$refs.draggable_div_ref.innerText)
 
-        if(this == occupiedTitle.$parent){
-          this.$slots.default()
-          console.log("Same line, rearrange order")
+            let newOrder = panel.getRenderOrder(occupiedTitle.itemId)
+            if (newOrder != currentRenderOrder) {
+              // 0 -- Drag from right to left. renderOrder of all cells in between need to +1
+              // 1 -- Drag from left to right. renderOrder of all cells in between need to -1
+              let direction = newOrder < currentRenderOrder ? 0 : 1
+
+              this.$slots.default().forEach(
+                  titleBar => {
+                    let titleBarComponent = titleBar.component.proxy
+                    let titleBarComponentRenderOrder = panel.getRenderOrder(titleBarComponent.itemId)
+
+                    if (direction == 0) {
+                      if (titleBarComponentRenderOrder >= newOrder && titleBarComponentRenderOrder < currentRenderOrder) {
+                        panel.setRenderOrder(titleBarComponent.itemId, titleBarComponentRenderOrder + 1)
+                      }
+                    } else if (direction == 1) {
+                      if (titleBarComponentRenderOrder > currentRenderOrder && titleBarComponentRenderOrder <= newOrder) {
+                        panel.setRenderOrder(titleBarComponent.itemId, titleBarComponentRenderOrder - 1)
+                      }
+                    }
+                  }
+              )
+              panel.setRenderOrder(itemId, newOrder)
+            }
+          }
         }
-      }
-
-      if(occupiedTitle != null){
-        occupiedTitle.SetMarginLeft(0)
-        occupiedTitle = null
-        occupiedTitleBarHolder = null
+      } finally {
+        if (occupiedTitle != null) {
+          occupiedTitle.SetMarginLeft(0)
+          occupiedTitle = null
+          occupiedTitleBarHolder = null
+        }
       }
     },
     onTitleMoving(param) {
+      let panel = this.$parent
       let ele = param.ele
       let targetPos = param.targetPos
 
@@ -53,22 +81,31 @@ export default {
 
         let targetRect = new Rect2D(targetPos.X, targetPos.Y, targetPos.X + ele.width, targetPos.Y + ele.height)
 
-        let insideMe = false
+        let lastChildRenderOrder = -1
+        let lastChild = null
+
+        let overlapWithChild = false
         // Move current titles if needed
         this.$slots.default().forEach(titleBar => {
           let titleBarComponent = titleBar.component.proxy // UGLY but really don't know how to access computed property in slot items
+
+          if (panel.getRenderOrder(titleBarComponent.itemId) > lastChildRenderOrder) {
+            lastChild = titleBarComponent
+            lastChildRenderOrder = panel.getRenderOrder(titleBarComponent.itemId)
+          }
+
           let x = titleBarComponent.x
           let y = titleBarComponent.y
           let width = titleBarComponent.width
           let height = titleBarComponent.height
 
-          let childTitleRect = new Rect2D(x,  y, x + width, y + height)
+          let childTitleRect = new Rect2D(x, y, x + width, y + height)
 
-          if(titleBarComponent.itemId != ele.itemId){
+          if (titleBarComponent.itemId != ele.itemId) {
             if (childTitleRect.overlap(targetRect)) {
-              insideMe = true
+              overlapWithChild = true
 
-              if(occupiedTitle != null){
+              if (occupiedTitle != null) {
                 occupiedTitle.SetMarginLeft(0)
                 occupiedTitleBarHolder = null
               }
@@ -80,17 +117,17 @@ export default {
             }
           }
 
-          if(!insideMe && occupiedTitle != null){
-            occupiedTitle.SetMarginLeft(0)
-            occupiedTitle = null
-            occupiedTitleBarHolder = null
+          // If this title doesn't overlap with child, it might be the last one
+          if (!overlapWithChild) {
+            occupiedTitle = lastChild
+            occupiedTitleBarHolder = this
           }
         })
 
         return true;
       }
 
-      if(this.occupiedTitle != null){
+      if (this.occupiedTitle != null) {
         this.occupiedTitle.SetMarginLeft(0)
         this.occupiedTitle = null
       }
