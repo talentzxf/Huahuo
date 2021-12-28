@@ -10,8 +10,39 @@ import {Rect2D} from "@/math/Rect2D";
 import {Utils} from "./Utils";
 import {Events} from "./Events";
 
-let occupiedTitle = null
-let occupiedTitleBarHolder = null
+class OccupiedTitleManager{
+  static Instance = new OccupiedTitleManager()
+
+  constructor() {
+    this.occupiedTitle = null
+    this.occupiedTitleBarHolder = null
+  }
+
+  SetCandidate(inCandidateBarComponent, inCandidateBarHolder, width){
+    this.Clear()
+    this.occupiedTitle = inCandidateBarComponent
+    this.occupiedTitleBarHolder = inCandidateBarHolder
+
+    if(width != null)
+      this.occupiedTitle.SetMarginLeft(width)
+  }
+
+  IsCurrentBarHolder(inBarHolder){
+    return this.occupiedTitleBarHolder == inBarHolder
+  }
+
+  Clear(){
+    if (this.occupiedTitle != null) {
+      this.occupiedTitle.SetMarginLeft(0)
+      this.occupiedTitle = null
+      this.occupiedTitleBarHolder = null
+    }
+  }
+
+  getOccupiedItem(){
+    return this.occupiedTitle
+  }
+}
 
 export default {
   name: "TitleBarHolder",
@@ -29,13 +60,13 @@ export default {
         let itemId = titleComponent.itemId
 
         // This is the target title bar holder
-        if (this == occupiedTitleBarHolder) {
+        if (OccupiedTitleManager.Instance.IsCurrentBarHolder(this)) {
           console.log("Target is me!")
           if (this == titleComponent.$parent) {
             let currentRenderOrder = panel.getRenderOrder(itemId)
             console.log("TitleComponent dropped:" + titleComponent.$refs.draggable_div_ref.innerText)
 
-            let newOrder = panel.getRenderOrder(occupiedTitle.itemId)
+            let newOrder = panel.getRenderOrder(OccupiedTitleManager.Instance.getOccupiedItem().itemId)
             if (newOrder != currentRenderOrder) {
               // 0 -- Drag from right to left. renderOrder of all cells in between need to +1
               // 1 -- Drag from left to right. renderOrder of all cells in between need to -1
@@ -62,12 +93,7 @@ export default {
           }
         }
       } finally {
-        if (occupiedTitle != null) {
-          console.log("Cleared occupited title in onTitleDrop!")
-          occupiedTitle.SetMarginLeft(0)
-          occupiedTitle = null
-          occupiedTitleBarHolder = null
-        }
+        OccupiedTitleManager.Instance.Clear()
       }
     },
     getLastChild(){
@@ -113,26 +139,18 @@ export default {
 
           if (candidateTitleBarComponent.itemId != ele.itemId) {
             if (childTitleRect.overlap(targetRect)) {
+              console.log("Overlapped with child!!!")
               overlapWithChild = true
-
-              if (occupiedTitle != null) {
-                occupiedTitle.SetMarginLeft(0)
-                occupiedTitleBarHolder = null
-              }
-
-              occupiedTitle = candidateTitleBarComponent
-              occupiedTitle.SetMarginLeft(ele.width)
-
-              occupiedTitleBarHolder = this
+              OccupiedTitleManager.Instance.SetCandidate(candidateTitleBarComponent, this, ele.width)
             }
           }
-
-          // If this title doesn't overlap with child, it might be the last one
-          if (!overlapWithChild) {
-            occupiedTitle = lastChild
-            occupiedTitleBarHolder = this
-          }
         })
+
+        // If this title doesn't overlap with any child, it might be the last one
+        if (!overlapWithChild) {
+          console.log("Didn't overlap with anybody!")
+          OccupiedTitleManager.Instance.SetCandidate(lastChild, this)
+        }
 
         return true;
       }
