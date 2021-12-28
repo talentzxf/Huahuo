@@ -63,6 +63,9 @@
                         }
                     }
                 )
+            },
+            debugRenderOrder(inTitleObjArray){
+                inTitleObjArray.forEach( obj => {console.log("Title:" + obj.title + " order:" + obj.renderOrder)})
             }
         },
         render: function () {
@@ -73,6 +76,8 @@
             let titleObjArray = Array.from(this.idSlotMap.values()).sort( (objA, objB)=>{
               return objA.renderOrder - objB.renderOrder
             })
+
+            this.debugRenderOrder(titleObjArray)
 
             titleObjArray.forEach(
                 value => {

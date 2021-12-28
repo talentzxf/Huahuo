@@ -63,14 +63,30 @@ export default {
         }
       } finally {
         if (occupiedTitle != null) {
+          console.log("Cleared occupited title in onTitleDrop!")
           occupiedTitle.SetMarginLeft(0)
           occupiedTitle = null
           occupiedTitleBarHolder = null
         }
       }
     },
-    onTitleMoving(param) {
+    getLastChild(){
       let panel = this.$parent
+      let lastChildRenderOrder = -1
+      let lastChild = null
+
+      this.$slots.default().forEach(titleBar=>{
+        let candidateTitleBarComponent = titleBar.component.proxy // UGLY but really don't know how to access computed property in slot items
+
+        if (panel.getRenderOrder(candidateTitleBarComponent.itemId) > lastChildRenderOrder) {
+          lastChild = candidateTitleBarComponent
+          lastChildRenderOrder = panel.getRenderOrder(candidateTitleBarComponent.itemId)
+        }
+      })
+
+      return lastChild
+    },
+    onTitleMoving(param) {
       let ele = param.ele
       let targetPos = param.targetPos
 
@@ -81,27 +97,21 @@ export default {
 
         let targetRect = new Rect2D(targetPos.X, targetPos.Y, targetPos.X + ele.width, targetPos.Y + ele.height)
 
-        let lastChildRenderOrder = -1
-        let lastChild = null
+        let lastChild = this.getLastChild()
 
         let overlapWithChild = false
         // Move current titles if needed
         this.$slots.default().forEach(titleBar => {
-          let titleBarComponent = titleBar.component.proxy // UGLY but really don't know how to access computed property in slot items
+          let candidateTitleBarComponent = titleBar.component.proxy // UGLY but really don't know how to access computed property in slot items
 
-          if (panel.getRenderOrder(titleBarComponent.itemId) > lastChildRenderOrder) {
-            lastChild = titleBarComponent
-            lastChildRenderOrder = panel.getRenderOrder(titleBarComponent.itemId)
-          }
-
-          let x = titleBarComponent.x
-          let y = titleBarComponent.y
-          let width = titleBarComponent.width
-          let height = titleBarComponent.height
+          let x = candidateTitleBarComponent.x
+          let y = candidateTitleBarComponent.y
+          let width = candidateTitleBarComponent.width
+          let height = candidateTitleBarComponent.height
 
           let childTitleRect = new Rect2D(x, y, x + width, y + height)
 
-          if (titleBarComponent.itemId != ele.itemId) {
+          if (candidateTitleBarComponent.itemId != ele.itemId) {
             if (childTitleRect.overlap(targetRect)) {
               overlapWithChild = true
 
@@ -110,7 +120,7 @@ export default {
                 occupiedTitleBarHolder = null
               }
 
-              occupiedTitle = titleBarComponent
+              occupiedTitle = candidateTitleBarComponent
               occupiedTitle.SetMarginLeft(ele.width)
 
               occupiedTitleBarHolder = this
