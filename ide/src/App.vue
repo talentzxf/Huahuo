@@ -1,7 +1,9 @@
 <template>
   <DraggablePanel>
     <DraggableItem title="ObjectExplorer">
-      Object explorer content
+      <div>
+        Object explorer content
+      </div>
     </DraggableItem>
     <DraggableItem title="ViewArea">
       <div>

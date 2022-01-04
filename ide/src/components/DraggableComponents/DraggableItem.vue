@@ -12,8 +12,13 @@
         name:"DraggableItem",
         props:{
             title: String,
-            active: Boolean,
-            itemId: Number
-        }
+            itemId: Number,
+            active: Boolean
+        },
+        // watch:{
+        //   active(newValue, oldValue){
+        //     console.log("Active changed from:"+ oldValue + " to:" + newValue)
+        //   }
+        // }
     }
 </script>
